@@ -4,6 +4,7 @@
 #include <string>
 
 #include "Color.h"
+#include "font.h"
 class Rect;
 class Pixel;
 using namespace std;
@@ -13,6 +14,7 @@ using namespace std;
 class Object {
 public:
 	 vector<Pixel> lst;
+	 
 	 Object() {
 
 	 }
@@ -48,6 +50,9 @@ public:
 	 float width;
 	 float height;
 	 Color color = Color(0, 0, 0, 0);
+	 string text = "";
+	 Font font = Font();
+	 Color text_color = Color(0,0,0,255);
 	 std::vector<Pixel> lst;
 	 Rect(int x, int y, float width, float height, Color color) {
 			this->x = x;
@@ -56,11 +61,17 @@ public:
 			this->height = height;
 			this->color = color;
 			for (int i = 0; i <= width; i++) {
-				 for (int j = 0; j <= width; j++) {
+				 for (int j = 0; j <= height; j++) {
 						Pixel p = Pixel(this->x + i, this->y + j, this->color);
 						this->lst.emplace_back(p);
 				 }
 			}
+	 }
+
+	 void setText(string text, Font font, Color text_color) {
+			this->text = text;
+			this->font = font;
+			this->text_color = text_color;
 	 }
 
 	 void printPixels() {
@@ -75,8 +86,11 @@ public:
 
 	 void draw() const {
 			for (Pixel pixel : lst) {
-				 //cout << pixel.toString();
 				 pixel.draw();
+			}
+			if (text != "") {
+				 const char* char_text = text.c_str();
+				 al_draw_text(font.font, text_color.color, ((x + (width / 2)) - ((font.size / 2) * text.length() / 2)), (y + (height / 2) - (font.size / 2)), 0, char_text);
 			}
 	 }
 };

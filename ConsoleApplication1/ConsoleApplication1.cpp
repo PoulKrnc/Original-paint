@@ -10,6 +10,7 @@
 
 #include "Color.h"
 #include "Object.h"
+#include "font.h"
 using namespace std; 
 
 int main() {
@@ -17,8 +18,10 @@ int main() {
 	 al_init_font_addon();
 	 al_init_ttf_addon();
 
-	 ALLEGRO_DISPLAY* display = al_create_display(740, 580);
-	 ALLEGRO_FONT* font = al_load_ttf_font("arial.ttf", 64, 0);
+	 ALLEGRO_DISPLAY* display = al_create_display(1350, 750);
+	 
+	 //ALLEGRO_FONT* font = al_load_ttf_font("arial.ttf", 64, 0);
+	 Font font1 = Font(20, "arial.ttf", 0);
 	 ALLEGRO_EVENT_QUEUE* queue;
 	 al_set_app_name("Test");
 	 queue = al_create_event_queue();
@@ -33,8 +36,8 @@ int main() {
 	 bool mouseBtn1 = false;
 	 int width = al_get_display_width(display);
 
-
 	 Color dark_blue = Color(20, 20, 240, 255);
+	 Color light_blue = Color(100, 100, 240, 255);
 	 Color white = Color(255, 255, 255, 255);
 	 Color black = Color(1, 1, 1, 255);
 
@@ -42,32 +45,16 @@ int main() {
 	 vector<Rect> rectangles{};
 	 vector<Line> lines{};
 
-	
-
 	 bool mouse_clicked = false;
 	 bool pre_safety = false;
 	 bool runner = true;
 	 int frame_count = 0;
-	 //al_clear_to_color(white.color);
+	 al_clear_to_color(white.shade(-20));
+
+	 Rect rt = Rect(100, 100, 400, 64, light_blue);
+	 rt.setText("hello world", font1, black);
+	 rt.draw();
 	 while (runner) {
-			
-			/*if (frame_count % 10 == 0) {
-				 for (Pixel pixel : pixels) {
-						pixel.draw();
-				 }
-			}
-
-			if (frame_count % 100 == 0) {
-				 for (Line line : lines) {
-						line.draw();
-				 }
-			}
-
-			if (frame_count >= 0) {
-				 for (Rect rect : rectangles) {
-						rect.draw();
-				 }
-			}*/
 
 			ALLEGRO_EVENT event{};
 			if (!al_is_event_queue_empty(queue)) {
@@ -107,7 +94,6 @@ int main() {
 	 al_uninstall_keyboard();
 	 al_destroy_event_queue(queue);
 	 al_destroy_display(display);
-	 al_destroy_font(font);
 
 }
 
