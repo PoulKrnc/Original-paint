@@ -1,12 +1,15 @@
 #pragma once
 #include <allegro5/drawing.h>
 #include <iostream>
+#include <functional>
 #include <string>
 
 #include "Color.h"
 #include "font.h"
+
 class Rect;
 class Pixel;
+class Circle;
 using namespace std;
 
 
@@ -41,9 +44,7 @@ public:
 	 }
 };
 
-
-
-class Rect : public Object {
+class Rect : Object {
 public:
 	 int x;
 	 int y;
@@ -54,12 +55,52 @@ public:
 	 Font font = Font();
 	 Color text_color = Color(0,0,0,255);
 	 std::vector<Pixel> lst;
+	 Rect() {
+			x = 0;
+			y = 0;
+			width = 0;
+			height = 0;
+	 }
 	 Rect(int x, int y, float width, float height, Color color) {
 			this->x = x;
 			this->y = y;
 			this->width = width;
 			this->height = height;
 			this->color = color;
+			for (int i = 0; i <= width; i++) {
+				 for (int j = 0; j <= height; j++) {
+						Pixel p = Pixel(this->x + i, this->y + j, this->color);
+						this->lst.emplace_back(p);
+				 }
+			}
+	 }
+
+	 Rect(int x, int y, float width, float height, Color color, string text, Font font, Color text_color) {
+			this->x = x;
+			this->y = y;
+			this->width = width;
+			this->height = height;
+			this->color = color;
+			this->text = text;
+			this->font = font;
+			this->text_color = text_color;
+			for (int i = 0; i <= width; i++) {
+				 for (int j = 0; j <= height; j++) {
+						Pixel p = Pixel(this->x + i, this->y + j, this->color);
+						this->lst.emplace_back(p);
+				 }
+			}
+	 }
+
+	 Rect(int x, int y, Color color, string text, Font font, Color text_color) {
+			this->x = x;
+			this->y = y;
+			this->color = color;
+			this->text = text;
+			this->font = font;
+			this->text_color = text_color;
+			this->width = (font.size) * text.length()/2;
+			this->height = font.size;
 			for (int i = 0; i <= width; i++) {
 				 for (int j = 0; j <= height; j++) {
 						Pixel p = Pixel(this->x + i, this->y + j, this->color);
@@ -84,13 +125,80 @@ public:
 			return "x= " + to_string(x) + "; y=" + to_string(y) + "; w=" + to_string(width) + "; h=" + to_string(height) + ";\n";
 	 }
 
-	 void draw() const {
+	 void draw() {
 			for (Pixel pixel : lst) {
 				 pixel.draw();
 			}
 			if (text != "") {
 				 const char* char_text = text.c_str();
 				 al_draw_text(font.font, text_color.color, ((x + (width / 2)) - ((font.size / 2) * text.length() / 2)), (y + (height / 2) - (font.size / 2)), 0, char_text);
+			}
+	 }
+};
+
+class Circle : Object {
+public:
+	 int x;
+	 int y;
+	 int r;
+	 int borderFat = 1;
+	 Color color = Color(0, 0, 0, 0);
+	 Color borderColor = Color(0, 0, 0, 0);
+	 std::vector<Pixel> lst;
+	 std::vector<Circle> lst1;
+	 Circle(int x, int y, int r, Color color) {
+			this->x = x;
+			this->y = y;
+			this->r = r;
+			this->color = color;
+			init();
+	 }
+	 Circle(int x, int y, int r, Color color, int borderFat, Color borderColor) {
+			this->x = x;
+			this->y = y;
+			this->r = r;
+			this->color = color;
+			this->borderFat = borderFat;
+			this->borderColor = borderColor;
+			init();
+			initNoFill();
+	 }
+
+	 void init() {
+			const double PI = 3.1415926535;
+			double i, angle, x1, y1;
+			for (double j = 0; j <= this->r; j+= 0.45) {
+				 double o = 2 * PI * (r - (j));
+				 for (i = 0; i < 361; i += (double)360 / o ) {
+						angle = i;
+						x1 = ((double)this->r - j) * cos(angle * PI / 180.0);
+						y1 = ((double)this->r - j) * sin(angle * PI / 180.0);
+						lst.push_back(Pixel((double)this->x + x1, (double)this->y + y1, color.shade(0)));
+				 }
+			}
+
+	 }
+
+	 void initNoFill() {
+			const double PI = 3.1415926535;
+			double i, angle, x1, y1;
+			double o = 2 * PI * r;
+			for (i = 0; i < 360; i += (double)360 / o) {
+				 angle = i;
+				 x1 = this->r * cos(angle * PI / 180);
+				 y1 = this->r * sin(angle * PI / 180);
+				 lst1.push_back(Circle(this->x + x1, this->y + y1,borderFat, borderColor));
+			}
+	 }
+
+	 void draw() {
+			for (Pixel pix : lst) {
+				 //cout << pixel.toString();
+				 pix.draw();
+			}
+			for (Circle rect : lst1) {
+				 //cout << pixel.toString();
+				 rect.draw();
 			}
 	 }
 };
@@ -190,20 +298,3 @@ public:
 
 };
 
-class Circle : Object {
-public: 
-	 int x;
-	 int y;
-	 int r;
-	 Color color = Color(0, 0, 0, 1);
-	 Circle(int x,int y,int r, Color color) {
-			this->x = x;
-			this->y = y;
-			this->r = r;
-			this->color = color;
-	 }
-
-	 void draw() {
-
-	 }
-};

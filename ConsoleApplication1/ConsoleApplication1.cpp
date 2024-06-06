@@ -11,7 +11,15 @@
 #include "Color.h"
 #include "Object.h"
 #include "font.h"
+#include "functions.h"
+#include "gesture_detector.h"
+using namespace Func;
 using namespace std; 
+/*!
+Changes the display to color
+[0] -> Color
+*/
+
 
 int main() {
 	 al_init();
@@ -19,7 +27,7 @@ int main() {
 	 al_init_ttf_addon();
 
 	 ALLEGRO_DISPLAY* display = al_create_display(1350, 750);
-	 
+
 	 //ALLEGRO_FONT* font = al_load_ttf_font("arial.ttf", 64, 0);
 	 Font font1 = Font(20, "arial.ttf", 0);
 	 ALLEGRO_EVENT_QUEUE* queue;
@@ -40,22 +48,42 @@ int main() {
 	 Color light_blue = Color(100, 100, 240, 255);
 	 Color white = Color(255, 255, 255, 255);
 	 Color black = Color(1, 1, 1, 255);
+	 Color red = Color(255, 20,20,255);
+
+	 Options options = Options(black);
 
 	 vector<Pixel> pixels{};
 	 vector<Rect> rectangles{};
 	 vector<Line> lines{};
+	 vector<RectClickDetector> rect_detectors{};
 
 	 bool mouse_clicked = false;
 	 bool pre_safety = false;
 	 bool runner = true;
 	 int frame_count = 0;
-	 al_clear_to_color(white.shade(-20));
+	 al_clear_to_color(white.color);
 
-	 Rect rt = Rect(100, 100, 400, 64, light_blue);
-	 rt.setText("hello world", font1, black);
-	 rt.draw();
+
+	 vector<void*> refresh1 = { &white };
+	 RectClickDetector rcd = RectClickDetector(clearToColor, refresh1, 0, 0, 100, 30, light_blue, "Refresh", font1, black);
+	 rcd.rect.draw();
+	 rect_detectors.push_back(rcd);
+	 vector<void*> blackPencil = { &black, &options };
+	 RectClickDetector btnBlack = RectClickDetector(changePencilColor, blackPencil, 100, 0, 30, 30, black);
+	 btnBlack.rect.draw();
+	 rect_detectors.push_back(btnBlack);
+	 vector<void*> darkBluePencil = {&dark_blue, &options};
+	 RectClickDetector btnDarkBlue = RectClickDetector(changePencilColor, darkBluePencil, 130, 0, 30, 30, dark_blue);
+	 btnDarkBlue.rect.draw();
+	 rect_detectors.push_back(btnDarkBlue);
+	 vector<void*> redPencil = { &red, &options };
+	 RectClickDetector btnRed = RectClickDetector(changePencilColor, redPencil, 160, 0, 30, 30, red);
+	 btnRed.rect.draw();
+	 rect_detectors.push_back(btnRed);
+
+	 string runner_code = "";
+
 	 while (runner) {
-
 			ALLEGRO_EVENT event{};
 			if (!al_is_event_queue_empty(queue)) {
 				 al_wait_for_event(queue, &event);
@@ -68,6 +96,12 @@ int main() {
 				 y = event.mouse.y;
 			}
 			if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+				 for (int i = 0; i < rect_detectors.size(); i++) {
+						if (rect_detectors[i].isClickDetected(x, y)) {
+							 runner_code = rect_detectors[i].func_pointer(rect_detectors[i].func_data1);
+							 cout<<runner_code<< endl;
+						}
+				 }
 				 mouse_clicked = true;
 			}
 			if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
@@ -77,7 +111,7 @@ int main() {
 
 			if (mouse_clicked) {
 				 if (pre_safety) {
-						Line l = Line(x, y, x_p, y_p, 2, dark_blue);
+						Line l = Line(x, y, x_p, y_p, 2, options.selectedColor);
 						lines.push_back(l);
 						l.draw();
 				 }
@@ -94,6 +128,6 @@ int main() {
 	 al_uninstall_keyboard();
 	 al_destroy_event_queue(queue);
 	 al_destroy_display(display);
-
 }
+
 

@@ -150,6 +150,7 @@
   <ItemGroup>
     <ClInclude Include="Color.h" />
     <ClInclude Include="font.h" />
+    <ClInclude Include="functions.h" />
     <ClInclude Include="gesture_detector.h" />
     <ClInclude Include="Object.h" />
   </ItemGroup>
